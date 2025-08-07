@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michael Clarke's Cyber Bingo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', 'Lucida Console', monospace;
+            background: 
+                radial-gradient(circle at 20% 80%, #00ff41 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, #0080ff 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, #00ffff 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #00ff41;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 65, 0.03) 2px,
+                    rgba(0, 255, 65, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 
+                0 0 3px #00ff41,
+                0 0 6px #00ff41;
+            background: linear-gradient(45deg, #00ff41, #00ffff, #0080ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #00ccdd;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .game-controls {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(45deg, #0080ff, #4000ff);
+            border: 1px solid #00ccdd;
+            padding: 12px 24px;
+            border-radius: 3px;
+            color: #00ccdd;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 5px rgba(0, 128, 255, 0.3),
+                inset 0 0 5px rgba(0, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 0 10px rgba(0, 128, 255, 0.4),
+                0 3px 10px rgba(0, 128, 255, 0.2),
+                inset 0 0 10px rgba(0, 255, 255, 0.15);
+            border-color: #00ffff;
+        }
+
+        .new-game-btn {
+            background: linear-gradient(45deg, #00aa33, #00ccdd) !important;
+            color: #fff !important;
+            border-color: #00aa33 !important;
+            box-shadow: 
+                0 0 8px rgba(0, 170, 51, 0.4),
+                inset 0 0 5px rgba(0, 255, 65, 0.1) !important;
+        }
+
+        .new-game-btn:hover {
+            box-shadow: 
+                0 0 12px rgba(0, 170, 51, 0.5),
+                0 3px 10px rgba(0, 170, 51, 0.3),
+                inset 0 0 10px rgba(0, 255, 65, 0.2) !important;
+        }
+
+        .bingo-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 500px;
+            margin: 0 auto 30px;
+            padding: 25px;
+            background: 
+                linear-gradient(45deg, rgba(0, 255, 65, 0.05), rgba(0, 255, 255, 0.05)),
+                rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ccdd;
+            border-radius: 8px;
+            box-shadow: 
+                0 0 15px rgba(0, 204, 221, 0.2),
+                inset 0 0 15px rgba(0, 255, 255, 0.05);
+        }
+
+        .bingo-cell {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #00cc88;
+            border: 1px solid #00ccdd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 3px rgba(0, 204, 136, 0.5);
+        }
+
+        .bingo-cell:hover {
+            transform: scale(1.02);
+            box-shadow: 
+                0 0 8px rgba(0, 255, 255, 0.3),
+                inset 0 0 8px rgba(0, 255, 255, 0.1);
+            border-color: #00ffff;
+            color: #00ffff;
+        }
+
+        .bingo-cell.marked {
+            background: linear-gradient(45deg, #0080ff, #4000ff);
+            color: #00ffff;
+            border-color: #00cc88;
+            transform: scale(0.98);
+            box-shadow: 
+                0 0 8px rgba(0, 128, 255, 0.4),
+                inset 0 0 8px rgba(0, 255, 255, 0.2);
+        }
+
+        .bingo-cell.marked::after {
+            content: '✓';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #00cc88;
+            text-shadow: 0 0 5px #00cc88;
+        }
+
+        .free-space {
+            background: linear-gradient(45deg, #00aa33, #00ccdd) !important;
+            color: #fff !important;
+            font-weight: bold;
+            box-shadow: 
+                0 0 10px rgba(0, 170, 51, 0.4),
+                inset 0 0 8px rgba(0, 0, 0, 0.2) !important;
+            border-color: #00aa33 !important;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(26, 26, 46, 0.6));
+            padding: 15px 25px;
+            border: 1px solid #00ccdd;
+            border-radius: 6px;
+            box-shadow: 
+                0 0 8px rgba(0, 204, 221, 0.2),
+                inset 0 0 8px rgba(0, 255, 255, 0.05);
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00cc88;
+            text-shadow: 0 0 5px rgba(0, 204, 136, 0.5);
+        }
+
+        .win-status {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(26, 26, 46, 0.6));
+            border: 1px solid #00ccdd;
+            border-radius: 6px;
+            box-shadow: 
+                0 0 8px rgba(0, 204, 221, 0.2),
+                inset 0 0 8px rgba(0, 255, 255, 0.05);
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #00ffff;
+        }
+
+        .bingo-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #0080ff, #4000ff);
+            padding: 30px 40px;
+            border: 2px solid #00ffff;
+            border-radius: 8px;
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 1000;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+            box-shadow: 
+                0 0 30px rgba(0, 128, 255, 0.5),
+                inset 0 0 20px rgba(0, 255, 255, 0.2);
+            animation: bingo-celebration 0.6s ease-in-out;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .leaderboard-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .leaderboard-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 2px solid #00ccdd;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 
+                0 0 30px rgba(0, 204, 221, 0.3),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            font-family: 'Courier New', monospace;
+        }
+
+        .leaderboard-content h2 {
+            color: #00ffff;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .achievement-form {
+            margin-bottom: 30px;
+        }
+
+        .achievement-form input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            border: 1px solid #00ccdd;
+            border-radius: 4px;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .achievement-form input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+
+        .achievement-form input::placeholder {
+            color: #00cc88;
+            opacity: 0.7;
+        }
+
+        .achievement-display {
+            background: linear-gradient(45deg, rgba(0, 255, 65, 0.1), rgba(0, 255, 255, 0.1));
+            padding: 15px;
+            border: 1px solid #00cc88;
+            border-radius: 6px;
+            margin: 15px 0;
+            text-align: center;
+            color: #00cc88;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .leaderboard-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(26, 26, 46, 0.4));
+            border: 1px solid #00ccdd;
+            border-radius: 4px;
+            color: #00ffff;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-entry.highlight {
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .entry-name {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .entry-achievement {
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .achievement-multiplelines {
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            color: #000;
+        }
+
+        .achievement-singleline {
+            background: linear-gradient(45deg, #00cc88, #00ffaa);
+            color: #000;
+        }
+
+        .achievement-corners {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: #fff;
+        }
+
+        .achievement-fullhouse {
+            background: linear-gradient(45deg, #ff1493, #9932cc);
+            color: #fff;
+        }
+
+        .entry-time {
+            font-size: 0.7rem;
+            color: #00cc88;
+            margin-left: 10px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            border: 1px solid #00ccdd;
+            border-radius: 4px;
+            background: linear-gradient(45deg, #0080ff, #4000ff);
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-button:hover {
+            box-shadow: 0 0 10px rgba(0, 128, 255, 0.4);
+            border-color: #00ffff;
+        }
+
+        .modal-button.submit {
+            background: linear-gradient(45deg, #00aa33, #00ccdd);
+            border-color: #00aa33;
+        }
+
+        .modal-button.submit:hover {
+            box-shadow: 0 0 10px rgba(0, 170, 51, 0.4);
+        }
+
+        @keyframes bingo-celebration {
+            0% { 
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .winning-line {
+            background: linear-gradient(45deg, #ffd700, #ffff00) !important;
+            color: #000 !important;
+            border-color: #ffd700 !important;
+            box-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.6),
+                inset 0 0 10px rgba(255, 215, 0, 0.3) !important;
+            animation: victory-pulse 2s infinite;
+        }
+
+        .winning-corners {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53) !important;
+            color: #fff !important;
+            border-color: #ff6b6b !important;
+            box-shadow: 
+                0 0 15px rgba(255, 107, 107, 0.6),
+                inset 0 0 10px rgba(255, 107, 107, 0.3) !important;
+            animation: victory-pulse 2s infinite;
+        }
+
+        .winning-fullhouse {
+            background: linear-gradient(45deg, #ff1493, #9932cc) !important;
+            color: #fff !important;
+            border-color: #ff1493 !important;
+            box-shadow: 
+                0 0 15px rgba(255, 20, 147, 0.6),
+                inset 0 0 10px rgba(255, 20, 147, 0.3) !important;
+            animation: victory-pulse 2s infinite;
+        }
+
+        @keyframes victory-pulse {
+            0%, 100% { 
+                transform: scale(1);
+            }
+            50% { 
+                transform: scale(1.05);
+            }
+        }
+
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1500;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        .confetti-1 { background: #ffd700; }
+        .confetti-2 { background: #ff6b6b; }
+        .confetti-3 { background: #4ecdc4; }
+        .confetti-4 { background: #45b7d1; }
+        .confetti-5 { background: #96ceb4; }
+        .confetti-6 { background: #ffeaa7; }
+
+        @keyframes confetti-fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-100px) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .fireworks {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: firework 1.5s ease-out infinite;
+        }
+
+        @keyframes firework {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(3);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .celebration-text {
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 
+                0 0 10px #ffd700,
+                0 0 20px #ffd700,
+                0 0 30px #ffd700;
+            z-index: 1600;
+            pointer-events: none;
+            animation: celebration-bounce 2s ease-in-out;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        @keyframes celebration-bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-30px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-15px);
+            }
+        }
+
+        .screen-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+            z-index: 1400;
+            pointer-events: none;
+            animation: screen-flash 0.5s ease-in-out 3;
+        }
+
+        @keyframes screen-flash {
+            0%, 100% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .bingo-cell { font-size: 0.7rem; }
+            .stats { gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Michael Clarke's Cyber Bingo</h1>
+        <p class="subtitle">Mark off cybersecurity and IT terms as you hear them!</p>
+        
+        <div class="game-controls">
+            <button class="new-game-btn" onclick="newGame()">New Game</button>
+            <button onclick="clearBoard()">Clear Board</button>
+            <button onclick="showLeaderboard()">Leaderboard</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="markedCount">0</div>
+                <div>Marked</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="linesCount">0</div>
+                <div>Lines</div>
+            </div>
+        </div>
+
+        <div class="win-status" id="winStatus" style="display: none;"></div>
+
+        <div class="bingo-board" id="bingoBoard"></div>
+    </div>
+
+    <script>
+        const cyberTerms = [
+            'Firewall', 'VPN', 'Malware', 'Phishing', 'Encryption',
+            'Two-Factor', 'SSL', 'Password', 'Virus', 'Trojan', 
+            'Ransomware', 'HTTPS', 'Network', 'Server', 'Vulnerability', 
+            'Patch', 'Update', 'Zero-Day', 'Breach', 'Authentication',
+            'Authorization', 'Token', 'Hash', 'Certificate', 'Social Engineering',
+            'DDoS', 'Botnet', 'Spam', 'Antivirus', 'IDS',
+            'SIEM', 'Endpoint', 'Sandbox', 'Whitelist', 'Blacklist',
+            'Incident', 'Forensics', 'Compliance', 'Risk Assessment', 'Security Audit',
+            'Threat Intel', 'Backup', 'Router', 'Protocol', 'Spyware',
+            'Adware', 'Keylogger', 'Rootkit', 'Worm', 'Backdoor',
+            'Exploit', 'Payload', 'Signature', 'Quarantine', 'Scanning',
+            'Detection', 'Prevention', 'Monitoring', 'Logging', 'Alert',
+            'Response', 'Recovery', 'Mitigation', 'Policy', 'Procedure',
+            'Standard', 'Framework', 'Control', 'Access Control', 'Data Loss'
+        ];
+
+        let currentBoard = [];
+        let markedCells = new Set();
+        let gameWon = false;
+        let winType = '';
+        let achievedWins = new Set(); // Track which wins have been achieved
+        let leaderboard = []; // In-memory leaderboard only
+        let pendingSubmission = null;
+        let lastLineCount = 0; // Track how many lines were completed previously
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function generateBoard() {
+            const shuffled = shuffleArray(cyberTerms);
+            // Take first 16 unique terms for 4x4 board
+            const board = shuffled.slice(0, 16);
+            return board;
+        }
+
+        function createBoardHTML() {
+            const board = document.getElementById('bingoBoard');
+            board.innerHTML = '';
+            
+            currentBoard.forEach((term, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'bingo-cell';
+                cell.textContent = term;
+                cell.dataset.index = index;
+                
+                cell.addEventListener('click', () => toggleCell(index));
+                board.appendChild(cell);
+            });
+        }
+
+        function toggleCell(index) {
+            const cell = document.querySelector(`[data-index="${index}"]`);
+            
+            if (markedCells.has(index)) {
+                markedCells.delete(index);
+                cell.classList.remove('marked');
+            } else {
+                markedCells.add(index);
+                cell.classList.add('marked');
+            }
+            
+            updateStats();
+            checkForWins();
+        }
+
+        function updateStats() {
+            document.getElementById('markedCount').textContent = markedCells.size;
+            document.getElementById('linesCount').textContent = countCompletedLines();
+        }
+
+        function countCompletedLines() {
+            const lines = getWinningLines();
+            return lines.filter(line => line.every(index => markedCells.has(index))).length;
+        }
+
+        function getWinningLines() {
+            const lines = [];
+            
+            // Rows (4x4 grid)
+            for (let i = 0; i < 4; i++) {
+                lines.push([i*4, i*4+1, i*4+2, i*4+3]);
+            }
+            
+            // Columns (4x4 grid)
+            for (let i = 0; i < 4; i++) {
+                lines.push([i, i+4, i+8, i+12]);
+            }
+            
+            // Diagonals (4x4 grid)
+            lines.push([0, 5, 10, 15]); // Top-left to bottom-right
+            lines.push([3, 6, 9, 12]);  // Top-right to bottom-left
+            
+            return lines;
+        }
+
+        function getFourCorners() {
+            return [0, 3, 12, 15]; // Top-left, top-right, bottom-left, bottom-right (4x4)
+        }
+
+        function getAllCells() {
+            return Array.from({length: 16}, (_, i) => i); // 16 cells for 4x4
+        }
+
+        function checkForWins() {
+            const lines = getWinningLines();
+            const completedLines = lines.filter(line => line.every(index => markedCells.has(index)));
+            const fourCorners = getFourCorners();
+            const allCells = getAllCells();
+            const currentLineCount = completedLines.length;
+            
+            // Check for full house (only win that ends the game)
+            if (allCells.every(index => markedCells.has(index))) {
+                if (!achievedWins.has('fullhouse')) {
+                    gameWon = true;
+                    achievedWins.add('fullhouse');
+                    highlightWinningCells(allCells, 'winning-fullhouse');
+                    playFullHouseCelebration(); // Add celebration effects
+                    showBingoAlert('🎉 FULL HOUSE! 🎉');
+                    updateWinStatus('🏆 FULL HOUSE - All cells marked! Game Complete!');
+                    setTimeout(() => showSubmissionModal('Full House'), 3000); // Delay to enjoy celebration
+                }
+                return;
+            }
+            
+            // Check for NEW lines (only trigger when line count increases)
+            if (currentLineCount > lastLineCount && currentLineCount > 0) {
+                // Determine if this is the first line achievement or an upgrade
+                if (!achievedWins.has('lines')) {
+                    // First time getting lines
+                    achievedWins.add('lines');
+                    const achievementType = currentLineCount > 1 ? 'Multiple Lines' : 'Single Line';
+                    const winMessage = currentLineCount === 1 ? 'Line' : `${currentLineCount} Lines`;
+                    completedLines.forEach(line => highlightWinningCells(line, 'winning-line'));
+                    showBingoAlert('🎉 BINGO! 🎉');
+                    updateWinStatus(`🎯 ${winMessage.toUpperCase()} - Keep going for Full House!`);
+                    showSubmissionModal(achievementType);
+                } else if (currentLineCount > 1 && lastLineCount === 1 && !achievedWins.has('multiplelines')) {
+                    // Upgrade from single line to multiple lines
+                    achievedWins.add('multiplelines');
+                    completedLines.forEach(line => highlightWinningCells(line, 'winning-line'));
+                    showBingoAlert('🎉 MULTIPLE LINES! 🎉');
+                    updateWinStatus(`🎯 ${currentLineCount} LINES - Keep going for Full House!`);
+                    showSubmissionModal('Multiple Lines');
+                }
+            }
+            
+            // Update line count for next check
+            lastLineCount = currentLineCount;
+            
+            // Check for four corners (game continues) - only if not already achieved
+            if (fourCorners.every(index => markedCells.has(index)) && !achievedWins.has('corners')) {
+                achievedWins.add('corners');
+                highlightWinningCells(fourCorners, 'winning-corners');
+                showBingoAlert('🎉 4 CORNERS! 🎉');
+                updateWinStatus('🔶 4 CORNERS - Keep going for Full House!');
+                showSubmissionModal('4 Corners');
+            }
+        }
+
+        function highlightWinningCells(cellIndices, className) {
+            cellIndices.forEach(index => {
+                const cell = document.querySelector(`[data-index="${index}"]`);
+                cell.classList.add(className);
+            });
+        }
+
+        function updateWinStatus(message) {
+            const winStatus = document.getElementById('winStatus');
+            winStatus.textContent = message;
+            winStatus.style.display = 'block';
+        }
+
+        function showBingoAlert(message) {
+            const alert = document.createElement('div');
+            alert.className = 'bingo-alert';
+            let subtitle = '';
+            
+            if (message.includes('FULL HOUSE')) {
+                subtitle = 'Game Complete!';
+            } else {
+                subtitle = 'Keep Going!';
+            }
+            
+            alert.innerHTML = `${message}<br><span style="font-size: 1.2rem; margin-top: 10px; display: block;">${subtitle}</span>`;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                if (document.body.contains(alert)) {
+                    document.body.removeChild(alert);
+                }
+            }, 3000);
+        }
+
+        function newGame() {
+            currentBoard = generateBoard();
+            markedCells = new Set(); // No free space in 4x4
+            gameWon = false;
+            winType = '';
+            achievedWins.clear(); // Reset achieved wins
+            lastLineCount = 0; // Reset line count tracking
+            createBoardHTML();
+            updateStats();
+            document.getElementById('winStatus').style.display = 'none';
+        }
+
+        function clearBoard() {
+            markedCells = new Set(); // No free space in 4x4
+            gameWon = false;
+            winType = '';
+            achievedWins.clear(); // Reset achieved wins
+            lastLineCount = 0; // Reset line count tracking
+            
+            document.querySelectorAll('.bingo-cell').forEach((cell, index) => {
+                cell.classList.remove('marked', 'winning-line', 'winning-corners', 'winning-fullhouse');
+            });
+            
+            updateStats();
+            document.getElementById('winStatus').style.display = 'none';
+        }
+
+        function showSubmissionModal(achievement) {
+            pendingSubmission = {
+                achievement: achievement,
+                timestamp: new Date().toLocaleString(),
+                cells: markedCells.size
+            };
+
+            const modal = document.createElement('div');
+            modal.className = 'leaderboard-modal';
+            modal.innerHTML = `
+                <div class="leaderboard-content">
+                    <h2>🎉 Achievement Unlocked! 🎉</h2>
+                    <div class="achievement-display">
+                        ${achievement}
+                    </div>
+                    <div class="achievement-form">
+                        <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
+                        <div class="modal-buttons">
+                            <button class="modal-button submit" onclick="submitToLeaderboard()">Submit to Leaderboard</button>
+                            <button class="modal-button" onclick="closeSubmissionModal()">Skip</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            document.getElementById('playerName').focus();
+            
+            // Allow Enter key to submit
+            document.getElementById('playerName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitToLeaderboard();
+                }
+            });
+        }
+
+        function submitToLeaderboard() {
+            const nameInput = document.getElementById('playerName');
+            const playerName = nameInput.value.trim() || 'Anonymous Player';
+            
+            const entry = {
+                name: playerName,
+                achievement: pendingSubmission.achievement,
+                cells: pendingSubmission.cells,
+                timestamp: pendingSubmission.timestamp,
+                date: new Date().toISOString()
+            };
+            
+            leaderboard.push(entry);
+            
+            // Sort leaderboard with custom priority order
+            leaderboard.sort((a, b) => {
+                // Define achievement priority (lower number = higher priority)
+                const getPriority = (achievement) => {
+                    switch (achievement) {
+                        case 'Full House': return 1;
+                        case 'Multiple Lines': return 2;
+                        case '4 Corners': return 3;
+                        case 'Single Line': return 4;
+                        default: return 5;
+                    }
+                };
+                
+                const priorityA = getPriority(a.achievement);
+                const priorityB = getPriority(b.achievement);
+                
+                // First sort by achievement priority
+                if (priorityA !== priorityB) {
+                    return priorityA - priorityB;
+                }
+                
+                // Then by cells marked (more cells = better)
+                if (a.cells !== b.cells) {
+                    return b.cells - a.cells;
+                }
+                
+                // Finally by date (more recent = better)
+                return new Date(b.date) - new Date(a.date);
+            });
+            
+            // Keep only top 50 entries
+            leaderboard = leaderboard.slice(0, 50);
+            
+            closeSubmissionModal();
+            showLeaderboard(entry);
+        }
+
+        function closeSubmissionModal() {
+            const modal = document.querySelector('.leaderboard-modal');
+            if (modal) {
+                document.body.removeChild(modal);
+            }
+            pendingSubmission = null;
+        }
+
+        function showLeaderboard(highlightEntry = null) {
+            const modal = document.createElement('div');
+            modal.className = 'leaderboard-modal';
+            
+            let leaderboardHTML = '';
+            if (leaderboard.length === 0) {
+                leaderboardHTML = '<div class="leaderboard-entry" style="text-align: center; color: #00cc88;">No entries yet - be the first!</div>';
+            } else {
+                leaderboardHTML = leaderboard.map((entry, index) => {
+                    const isHighlight = highlightEntry && 
+                        entry.name === highlightEntry.name && 
+                        entry.timestamp === highlightEntry.timestamp;
+                    
+                    const achievementClass = entry.achievement === 'Full House' ? 'fullhouse' :
+                                           entry.achievement === 'Multiple Lines' ? 'multiplelines' :
+                                           entry.achievement === '4 Corners' ? 'corners' : 'singleline';
+                    
+                    return `
+                        <div class="leaderboard-entry ${isHighlight ? 'highlight' : ''}">
+                            <div class="entry-name">#${index + 1} ${entry.name}</div>
+                            <div class="entry-achievement achievement-${achievementClass}">${entry.achievement}</div>
+                            <div class="entry-time">${entry.cells}/16 • ${entry.timestamp}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            modal.innerHTML = `
+                <div class="leaderboard-content">
+                    <h2>🏆 Cyber Bingo Leaderboard 🏆</h2>
+                    <div class="leaderboard-list">
+                        ${leaderboardHTML}
+                    </div>
+                    <div class="modal-buttons">
+                        <button class="modal-button" onclick="clearLeaderboard()">Clear All</button>
+                        <button class="modal-button" onclick="closeLeaderboard()">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        function closeLeaderboard() {
+            const modal = document.querySelector('.leaderboard-modal');
+            if (modal) {
+                document.body.removeChild(modal);
+            }
+        }
+
+        function clearLeaderboard() {
+            if (confirm('Are you sure you want to clear the entire leaderboard?')) {
+                leaderboard = [];
+                closeLeaderboard();
+                // Show a brief confirmation
+                setTimeout(() => {
+                    alert('Leaderboard cleared successfully!');
+                }, 100);
+            }
+        }
+
+        function playFullHouseCelebration() {
+            // Create celebration overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'celebration-overlay';
+            document.body.appendChild(overlay);
+            
+            // Add screen flash
+            const flash = document.createElement('div');
+            flash.className = 'screen-flash';
+            document.body.appendChild(flash);
+            
+            // Add celebration text
+            const celebrationText = document.createElement('div');
+            celebrationText.className = 'celebration-text';
+            celebrationText.textContent = '🏆 FULL HOUSE! 🏆';
+            document.body.appendChild(celebrationText);
+            
+            // Create confetti
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = `confetti confetti-${(i % 6) + 1}`;
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    overlay.appendChild(confetti);
+                }, i * 50);
+            }
+            
+            // Create fireworks
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'fireworks';
+                    firework.style.left = Math.random() * 100 + '%';
+                    firework.style.top = Math.random() * 60 + 20 + '%';
+                    firework.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                    firework.style.animationDelay = Math.random() * 1 + 's';
+                    overlay.appendChild(firework);
+                }, i * 100);
+            }
+            
+            // Make the board cells dance
+            const cells = document.querySelectorAll('.bingo-cell');
+            cells.forEach((cell, index) => {
+                setTimeout(() => {
+                    cell.style.animation = 'victory-pulse 0.6s ease-in-out';
+                }, index * 30);
+            });
+            
+            // Play celebration sound effect (visual representation)
+            createSoundWaves();
+            
+            // Clean up after 5 seconds
+            setTimeout(() => {
+                if (document.body.contains(overlay)) {
+                    document.body.removeChild(overlay);
+                }
+                if (document.body.contains(flash)) {
+                    document.body.removeChild(flash);
+                }
+                if (document.body.contains(celebrationText)) {
+                    document.body.removeChild(celebrationText);
+                }
+                // Reset cell animations
+                cells.forEach(cell => {
+                    cell.style.animation = '';
+                });
+            }, 5000);
+        }
+
+        function createSoundWaves() {
+            const waves = document.createElement('div');
+            waves.style.position = 'fixed';
+            waves.style.top = '50%';
+            waves.style.left = '50%';
+            waves.style.transform = 'translate(-50%, -50%)';
+            waves.style.zIndex = '1700';
+            waves.style.pointerEvents = 'none';
+            
+            for (let i = 0; i < 3; i++) {
+                const wave = document.createElement('div');
+                wave.style.position = 'absolute';
+                wave.style.border = '3px solid rgba(255, 215, 0, 0.3)';
+                wave.style.borderRadius = '50%';
+                wave.style.width = '50px';
+                wave.style.height = '50px';
+                wave.style.animation = `sound-wave 1.5s ease-out ${i * 0.3}s infinite`;
+                waves.appendChild(wave);
+            }
+            
+            // Add sound wave animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes sound-wave {
+                    0% {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: scale(8);
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(waves);
+            
+            setTimeout(() => {
+                if (document.body.contains(waves)) {
+                    document.body.removeChild(waves);
+                }
+                if (document.head.contains(style)) {
+                    document.head.removeChild(style);
+                }
+            }, 5000);
+        }
+
+        // Initialize the game
+        newGame();
+    </script>
+</body>
+</html>
